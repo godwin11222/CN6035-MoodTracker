@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # MoodTracker
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/findkeys/MoodTracker)](https://github.com/your-username/bot-front-web-app/stargazers)
@@ -128,3 +129,7 @@ The MoodTracker project is designed to help users gain insights into their emoti
 [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/users/887532157747212370)
 [![X](https://img.shields.io/badge/X-%23000000.svg?style=for-the-badge&logo=X&logoColor=white)](https://twitter.com/codewithriza)
 
+=======
+# CN6035-MoodTracker
+CN6035 DApp: MoodTracker (Solidity + Flask + ethers.js + MetaMask)
+>>>>>>> f8f8727a7d0ebf7f08c07e15e9173e478fd00e71
