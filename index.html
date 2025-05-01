@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MoodTracker DApp</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- 1) UMD bundle of ethers.js v6 -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>MoodTracker</h1>
+    <p class="subtitle">Record and recall your daily mood on-chain</p>
+    <input id="moodInput" placeholder="Enter mood (e.g. Happy)" />
+
+    <button id="connectBtn">🔗 Connect Wallet</button>
+    <button id="submitBtn" disabled>🚀 Submit Mood</button>
+    <button id="getBtn"    disabled>🔍 Get Last Mood</button>
+
+    <p id="result"></p>
+  </div>
+
+  <script>
+    // ─── YOUR CONTRACT INFO ─────────────────────────────────────────────
+    const CONTRACT_ADDRESS = "0x8671909291E577816Ab59351D23445f9ab5B58bF";
+    const CONTRACT_ABI = [
+      "function setMood(string calldata _mood) external",
+      "function lastMood() external view returns (string memory)"
+    ];
+
+    // ─── ELEMENTS ───────────────────────────────────────────────────────
+    const connectBtn = document.getElementById("connectBtn");
+    const submitBtn  = document.getElementById("submitBtn");
+    const getBtn     = document.getElementById("getBtn");
+    const input      = document.getElementById("moodInput");
+    const resultP    = document.getElementById("result");
+
+    let provider, signer, contract;
+
+    // ─── 1) CONNECT WALLET ──────────────────────────────────────────────
+    connectBtn.addEventListener("click", async () => {
+      if (!window.ethereum) {
+        resultP.innerText = "🚫 MetaMask not detected";
+        return;
+      }
+
+      try {
+        // Request accounts & switch to Sepolia
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0xAA36A7" }]            // 0xAA36A7 = Sepolia (decimal 11155111)
+        });
+
+        // Initialize ethers.js
+        provider = new ethers.BrowserProvider(window.ethereum);
+        signer   = await provider.getSigner();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+        connectBtn.innerText = "✅ Connected";
+        connectBtn.disabled  = true;
+        submitBtn.disabled   = false;
+        getBtn.disabled      = false;
+        resultP.innerText    = "🔌 Wallet connected (Sepolia)";
+      } catch (err) {
+        console.error(err);
+        resultP.innerText = "❌ Connection failed";
+      }
+    });
+
+    // ─── 2) SUBMIT MOOD ─────────────────────────────────────────────────
+    submitBtn.addEventListener("click", async () => {
+      const mood = input.value.trim();
+      if (!mood) {
+        resultP.innerText = "⚠️ Please enter a mood";
+        return;
+      }
+      try {
+        resultP.innerText = "⏳ Sending transaction…";
+        const tx = await contract.setMood(mood);
+        await tx.wait();
+        resultP.innerText = `✅ Mood “${mood}” set on-chain!`;
+      } catch (err) {
+        console.error(err);
+        resultP.innerText = "❌ Tx failed";
+      }
+    });
+
+    // ─── 3) GET LAST MOOD ───────────────────────────────────────────────
+    getBtn.addEventListener("click", async () => {
+      try {
+        resultP.innerText = "⏳ Reading on-chain…";
+        const last = await contract.lastMood();
+        resultP.innerText = `🔗 lastMood(): “${last}”`;
+      } catch (err) {
+        console.error(err);
+        resultP.innerText = "❌ Read failed";
+      }
+    });
+  </script>
+</body>
+</html>
